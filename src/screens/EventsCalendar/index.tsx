@@ -3,6 +3,8 @@ import {StatusBar, ScrollView, View, Text, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {Button} from 'react-native-elements';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {Calendar} from 'react-native-calendars';
+
 import {EventCard, Header} from 'components';
 export const EventsCalendar = () => {
   return (
@@ -23,6 +25,11 @@ export const EventsCalendar = () => {
             title="Create Event"
           />
         </View>
+        <Calendar
+          style={{
+            height: 350,
+          }}
+        />
         <View style={{height: 'auto'}}>
           {[1].map(key => (
             <EventCard key={key} />
