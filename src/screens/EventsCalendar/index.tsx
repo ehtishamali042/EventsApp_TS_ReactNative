@@ -1,17 +1,26 @@
-import React from 'react';
-import {StatusBar, ScrollView, View, Text, StyleSheet} from 'react-native';
+import React, {useState} from 'react';
+import {StatusBar, ScrollView, View, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {Button} from 'react-native-elements';
+import {Text, Button} from 'react-native-elements';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Calendar} from 'react-native-calendars';
-
-import {EventCard, Header} from 'components';
+import {useNavigation} from '@react-navigation/native';
+import {EventCard, Header, useCurrentUserEvents, RowSpacer} from 'components';
+import {getFullDate} from 'utilities';
 export const EventsCalendar = () => {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const {events, refetchEvents} = useCurrentUserEvents();
+  const navigation = useNavigation();
+
+  const filteredEvents = events.filter(
+    item => getFullDate(item.date) === getFullDate(selectedDate),
+  );
+
   return (
     <SafeAreaView>
+      <StatusBar />
+      <Header title="Events Calendar" />
       <ScrollView>
-        <StatusBar />
-        <Header title="Events Calendar" />
         <View style={styles.buttonContainer}>
           <Button
             icon={
@@ -23,17 +32,38 @@ export const EventsCalendar = () => {
               />
             }
             title="Create Event"
+            onPress={() => navigation.navigate('CreateEvent')}
           />
         </View>
         <Calendar
           style={{
             height: 350,
           }}
+          current={selectedDate}
+          onDayPress={day => {
+            setSelectedDate(day.dateString);
+          }}
+          markedDates={{
+            [selectedDate]: {
+              selected: true,
+              disableTouchEvent: true,
+              selectedColor: 'purple',
+              selectedTextColor: 'white',
+            },
+          }}
         />
         <View style={{height: 'auto'}}>
-          {[1].map(key => (
-            <EventCard key={key} />
-          ))}
+          {filteredEvents.length ? (
+            filteredEvents.map((item, key) => (
+              <EventCard item={item} key={key} refetchEvents={refetchEvents} />
+            ))
+          ) : (
+            <Text h4 h4Style={{textAlign: 'center', marginTop: 80}}>
+              No events to show yet
+            </Text>
+          )}
+
+          <RowSpacer />
         </View>
       </ScrollView>
     </SafeAreaView>

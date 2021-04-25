@@ -1,18 +1,48 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Alert} from 'react-native';
 import {Card, Button} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
-export const EventCard = () => {
+import {useNavigation} from '@react-navigation/native';
+
+import {AsyncStorageAPI, getFullDate, getFullTime} from 'utilities';
+
+const {getFromAsyncStore, setInAsyncStore} = AsyncStorageAPI;
+
+export const EventCard = ({item, refetchEvents}: any) => {
+  const navigation = useNavigation();
+
+  const date = getFullDate(item.date);
+  const startTime = getFullTime(item.startTime);
+  const endTime = getFullTime(item.endTime);
+
+  const deleteEvent = () => {
+    getFromAsyncStore('@events')
+      .then(allEvents => {
+        if (allEvents === null) return;
+
+        const filteredEvents = allEvents.filter(obj => obj.id !== item.id);
+        setInAsyncStore('@events', filteredEvents)
+          .then(() => {
+            refetchEvents();
+            Alert.alert('Delete Event Success');
+          })
+          .catch(() => Alert.alert('Delete Event Failed'));
+      })
+      .catch(() => Alert.alert('Delete Event Failed'));
+  };
+
   return (
     <Card>
       <View style={styles.header}>
-        <Text style={{fontSize: 16}}>Title</Text>
+        <Text style={{fontSize: 16}}>{item.name}</Text>
         <View style={styles.iconContainer}>
           <Button
+            onPress={() => deleteEvent()}
             buttonStyle={{backgroundColor: 'transparent'}}
             icon={<Icon name="trash" size={22} />}
           />
           <Button
+            onPress={() => navigation.navigate('CreateEvent', {id: item.id})}
             buttonStyle={{backgroundColor: 'transparent'}}
             icon={<Icon name="pencil" size={22} />}
           />
@@ -20,9 +50,10 @@ export const EventCard = () => {
       </View>
       <Card.Divider />
       <View style={{paddingHorizontal: 10}}>
-        <Text style={styles.textStyles}>12-March-2021 - 3pm</Text>
-        <Text style={styles.textStyles}>Description....</Text>
-        <Text style={styles.textStyles}>Attachment Not Available</Text>
+        <Text style={styles.textStyles}>
+          {date} - {startTime} : {endTime}
+        </Text>
+        <Text style={styles.textStyles}>{item.description}</Text>
       </View>
     </Card>
   );

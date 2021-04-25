@@ -14,7 +14,8 @@
     "paths": {
       "@screens": ["./screens"],
       "@components": ["./components"],
-      "@navigation": ["./navigation"]
+      "@navigation": ["./navigation"],
+      "@utilities": ["./utilities"]
     }
   },
   "exclude": [
