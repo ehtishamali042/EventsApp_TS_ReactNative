@@ -16,5 +16,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     height: 40,
+    maxHeight: 40,
   },
 });
