@@ -7,8 +7,9 @@ import {Calendar} from 'react-native-calendars';
 import {useNavigation} from '@react-navigation/native';
 import {EventCard, Header, useCurrentUserEvents, RowSpacer} from 'components';
 import {getFullDate} from 'utilities';
+
 export const EventsCalendar = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | string>(new Date());
   const {events, refetchEvents} = useCurrentUserEvents();
   const navigation = useNavigation();
 
@@ -41,6 +42,7 @@ export const EventsCalendar = () => {
           }}
           current={selectedDate}
           onDayPress={day => {
+            console.log(new Date(day.dateString), 'day');
             setSelectedDate(day.dateString);
           }}
           markedDates={{

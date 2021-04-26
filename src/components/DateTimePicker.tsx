@@ -1,16 +1,26 @@
 import React from 'react';
+import {StyleProp, ViewStyle} from 'react-native';
 import DTP from '@react-native-community/datetimepicker';
 import {Button} from 'react-native-elements';
 import {IS_ANDROID, getFullDate, getFullTime} from 'utilities';
 
-export const DateTimePicker = ({
+type Props = {
+  mode: 'date' | 'time';
+  date: Date;
+  type: 'date' | 'startTime' | 'endTime';
+  style?: ViewStyle;
+  onChange: (e: Event, date: Date | undefined, type: Props['type']) => void;
+  showPicker: boolean;
+  setShowPicker: React.Dispatch<React.SetStateAction<boolean>>;
+};
+export const DateTimePicker: React.FC<Props> = ({
   mode,
   date,
   onChange,
   type,
   showPicker,
   setShowPicker,
-  style,
+  style = {},
 }) => {
   return (
     <>

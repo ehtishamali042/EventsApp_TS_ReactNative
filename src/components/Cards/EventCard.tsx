@@ -3,12 +3,16 @@ import {View, Text, StyleSheet, Alert} from 'react-native';
 import {Card, Button} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {useNavigation} from '@react-navigation/native';
-
+import {EventType} from 'components';
 import {AsyncStorageAPI, getFullDate, getFullTime} from 'utilities';
 
 const {getFromAsyncStore, setInAsyncStore} = AsyncStorageAPI;
 
-export const EventCard = ({item, refetchEvents}: any) => {
+type Props = {
+  item: EventType;
+  refetchEvents: () => void;
+};
+export const EventCard = ({item, refetchEvents}: Props) => {
   const navigation = useNavigation();
 
   const date = getFullDate(item.date);
@@ -17,7 +21,7 @@ export const EventCard = ({item, refetchEvents}: any) => {
 
   const deleteEvent = () => {
     getFromAsyncStore('@events')
-      .then(allEvents => {
+      .then((allEvents: EventType[] | null) => {
         if (allEvents === null) return;
 
         const filteredEvents = allEvents.filter(obj => obj.id !== item.id);

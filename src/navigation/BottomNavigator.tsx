@@ -9,7 +9,7 @@ const Tab = createBottomTabNavigator();
 export const BottomNavigator = () => {
   return (
     <Tab.Navigator
-      initialRouteName="EventsCalendar"
+      initialRouteName="EventsListing"
       tabBarOptions={{labelStyle: {fontSize: 15}}}>
       <Tab.Screen
         name="EventsListing"

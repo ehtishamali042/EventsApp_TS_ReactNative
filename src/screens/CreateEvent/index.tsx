@@ -2,20 +2,42 @@ import React, {useEffect, useState} from 'react';
 import {StatusBar, ScrollView, View, StyleSheet, Alert} from 'react-native';
 import {Button, Text, Input} from 'react-native-elements';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {Header, Picker, useCurrentUserEvents, DateTimePicker} from 'components';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RouteProp} from '@react-navigation/native';
+import {
+  Header,
+  Picker,
+  useCurrentUserEvents,
+  DateTimePicker,
+  EventType,
+} from 'components';
 import {AsyncStorageAPI, IS_ANDROID} from 'utilities';
+import {MainStackParamList} from 'navigation';
 
 const {getFromAsyncStore, setInAsyncStore} = AsyncStorageAPI;
 
 // This Screen will serve CreateEvent and UpdateEvent functionality
 
-export const CreateEvent = ({route, navigation}) => {
+type CreateEventScreenNavigationProp = StackNavigationProp<
+  MainStackParamList,
+  'CreateEvent'
+>;
+type CreateEventScreenRouteProp = RouteProp<MainStackParamList, 'CreateEvent'>;
+
+type Props = {
+  navigation: CreateEventScreenNavigationProp;
+  route: CreateEventScreenRouteProp;
+};
+
+export const CreateEvent: React.FC<Props> = ({route, navigation}) => {
   const isEventCreateScreen = !route.params;
 
   const {refetchEvents, events} = useCurrentUserEvents();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [eventType, setEventType] = useState('all');
+  const [eventType, setEventType] = useState<'all' | EventType['eventType']>(
+    'all',
+  );
   const [date, setDate] = useState(new Date());
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
@@ -30,8 +52,9 @@ export const CreateEvent = ({route, navigation}) => {
   );
 
   useEffect(() => {
-    if (!isEventCreateScreen) {
+    if (!isEventCreateScreen && route.params && route.params.id) {
       // This is UpdateEvent Screen
+
       const itemId = route.params.id;
       const getItem = events.filter(item => item.id === itemId);
       if (!getItem.length) return;
@@ -45,12 +68,16 @@ export const CreateEvent = ({route, navigation}) => {
     }
   }, [isEventCreateScreen, events]);
 
-  const onDateChange = (event, date_value, type) => {
+  const onDateChange = (
+    event: Event,
+    date_value: Date | undefined,
+    type: 'date' | 'startTime' | 'endTime',
+  ) => {
     setShowDatePicker(IS_ANDROID ? false : true);
     setShowStartTimePicker(IS_ANDROID ? false : true);
     setShowEndTimePicker(IS_ANDROID ? false : true);
 
-    if (event.type === 'dismissed') {
+    if (event.type === 'dismissed' || !date_value) {
       return;
     }
     if (type === 'date') {
@@ -77,7 +104,7 @@ export const CreateEvent = ({route, navigation}) => {
     }
 
     const item = {
-      id: new Date().getTime(),
+      id: new Date().getTime().toString(),
       name,
       description,
       date,
@@ -87,7 +114,7 @@ export const CreateEvent = ({route, navigation}) => {
     };
 
     getFromAsyncStore('@events')
-      .then((allEvents: [] | null) => {
+      .then((allEvents: EventType[] | null) => {
         if (allEvents === null) allEvents = [];
         allEvents.unshift(item);
         console.log(allEvents.length, 'allEvents');
@@ -116,31 +143,32 @@ export const CreateEvent = ({route, navigation}) => {
       Alert.alert('Time should not be same');
       return;
     }
+    if (route.params && route.params.id) {
+      const item = {
+        name,
+        description,
+        date,
+        startTime,
+        endTime,
+        eventType,
+        id: route.params.id,
+      };
 
-    const item = {
-      name,
-      description,
-      date,
-      startTime,
-      endTime,
-      eventType,
-      id: route.params.id,
-    };
+      getFromAsyncStore('@events')
+        .then((allEvents: EventType[] | null) => {
+          if (allEvents === null) return;
 
-    getFromAsyncStore('@events')
-      .then(allEvents => {
-        if (allEvents === null) return;
-
-        const filteredEvents = allEvents.filter(obj => obj.id !== item.id);
-        const newItems = [item, ...filteredEvents];
-        setInAsyncStore('@events', newItems)
-          .then(() => {
-            refetchEvents();
-            Alert.alert('Update Event Success');
-          })
-          .catch(() => Alert.alert('Update Event Failed'));
-      })
-      .catch(() => Alert.alert('Update Event Failed'));
+          const filteredEvents = allEvents.filter(obj => obj.id !== item.id);
+          const newItems = [item, ...filteredEvents];
+          setInAsyncStore('@events', newItems)
+            .then(() => {
+              refetchEvents();
+              Alert.alert('Update Event Success');
+            })
+            .catch(() => Alert.alert('Update Event Failed'));
+        })
+        .catch(() => Alert.alert('Update Event Failed'));
+    }
   };
 
   return (
@@ -210,7 +238,6 @@ export const CreateEvent = ({route, navigation}) => {
                 Event Type
               </Text>
               <Picker
-                containerStyle={{width: 200}}
                 defaultValue={eventType}
                 onChangeItem={e => setEventType(e.value)}
               />

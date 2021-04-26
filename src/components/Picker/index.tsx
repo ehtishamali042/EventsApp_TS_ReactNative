@@ -1,6 +1,8 @@
 import React from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {View, Platform} from 'react-native';
+import {EventType} from 'components';
+
 const options = [
   {
     label: 'All',
@@ -11,10 +13,15 @@ const options = [
   {label: 'Task', value: 'task'},
 ];
 
-export const Picker = ({
+type Props = {
+  defaultValue: EventType['eventType'] | 'all';
+  items?: typeof options;
+  onChangeItem: (e: {value: EventType['eventType']}) => void;
+};
+
+export const Picker: React.FC<Props> = ({
   items = options,
-  onChangeItem = (e: any) => {},
-  containerStyle = {},
+  onChangeItem = e => {},
   defaultValue = 'all',
 }) => {
   return (

@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-export const getFullDate = (date: Date) =>
+export const getFullDate = (date: Date | string) =>
   moment(new Date(date)).format('YYYY-MM-DD');
 
 export const getFullTime = (date: Date) =>

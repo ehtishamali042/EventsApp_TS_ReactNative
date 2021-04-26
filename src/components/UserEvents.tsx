@@ -3,14 +3,30 @@ import {AsyncStorageAPI} from 'utilities';
 
 const {getFromAsyncStore} = AsyncStorageAPI;
 
-export const UserEventsContext = React.createContext({
+export type EventType = {
+  id: string;
+  name: string;
+  description: string;
+  date: Date;
+  startTime: Date;
+  endTime: Date;
+  eventType: 'event' | 'out_of_office' | 'task';
+};
+
+type UserEventsContextProps = {
+  events: EventType[];
+  setEvents: React.Dispatch<React.SetStateAction<EventType[]>>;
+  refetchEvents: () => void;
+};
+
+export const UserEventsContext = React.createContext<UserEventsContextProps>({
   events: [],
   setEvents: () => {},
   refetchEvents: () => {},
 });
 
 export const UserEventsProvider: React.FC = ({children}) => {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<EventType[]>([]);
 
   const fetchEvents = useCallback(() => {
     getFromAsyncStore('@events')

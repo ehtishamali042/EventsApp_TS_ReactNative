@@ -11,10 +11,13 @@ import {
   Header,
   useCurrentUserEvents,
   RowSpacer,
+  EventType,
 } from 'components';
 
 export const EventsListing = () => {
-  const [eventType, setEventType] = useState('all');
+  const [eventType, setEventType] = useState<'all' | EventType['eventType']>(
+    'all',
+  );
   const {events, refetchEvents} = useCurrentUserEvents();
   const navigation = useNavigation();
 
