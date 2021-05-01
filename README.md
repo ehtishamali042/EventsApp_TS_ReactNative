@@ -1,4 +1,4 @@
-# Events App
+# Events App ( React Native )
 
 See ANDROID DEMO HERE
 Android Release Build:
