@@ -88,21 +88,25 @@ export const CreateEvent: React.FC<Props> = ({route, navigation}) => {
       setEndTime(new Date(date_value));
     }
   };
-
-  const createEventHandler = async () => {
+  const validateForm = () => {
     if (!name) {
       Alert.alert('Enter Event Name');
-      return;
+      return false;
     }
     if (eventType === 'all') {
       Alert.alert('Select Event Type');
-      return;
+      return false;
     }
-    if (new Date(startTime).getTime() === new Date(endTime).getTime()) {
+    if (new Date(endTime).getTime() >= new Date(startTime).getTime()) {
       Alert.alert('Time should not be same');
-      return;
+      return false;
     }
+    return true;
+  };
 
+  const createEventHandler = async () => {
+    const validate = validateForm();
+    if (!validate) return;
     const item = {
       id: new Date().getTime().toString(),
       name,
@@ -131,18 +135,8 @@ export const CreateEvent: React.FC<Props> = ({route, navigation}) => {
 
   const updateEventHandler = async () => {
     if (isEventCreateScreen) return;
-    if (!name) {
-      Alert.alert('Enter Event Name');
-      return;
-    }
-    if (eventType === 'all') {
-      Alert.alert('Select Event Type');
-      return;
-    }
-    if (new Date(startTime).getTime() === new Date(endTime).getTime()) {
-      Alert.alert('Time should not be same');
-      return;
-    }
+    const validate = validateForm();
+    if (!validate) return;
     if (route.params && route.params.id) {
       const item = {
         name,

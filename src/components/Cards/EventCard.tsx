@@ -19,20 +19,19 @@ export const EventCard = ({item, refetchEvents}: Props) => {
   const startTime = getFullTime(item.startTime);
   const endTime = getFullTime(item.endTime);
 
-  const deleteEvent = () => {
-    getFromAsyncStore('@events')
-      .then((allEvents: EventType[] | null) => {
-        if (allEvents === null) return;
+  const deleteEvent = async () => {
+    try {
+      const allEvents: EventType[] | null = await getFromAsyncStore('@events');
 
-        const filteredEvents = allEvents.filter(obj => obj.id !== item.id);
-        setInAsyncStore('@events', filteredEvents)
-          .then(() => {
-            refetchEvents();
-            Alert.alert('Delete Event Success');
-          })
-          .catch(() => Alert.alert('Delete Event Failed'));
-      })
-      .catch(() => Alert.alert('Delete Event Failed'));
+      if (!allEvents) return;
+
+      const filteredEvents = allEvents.filter(obj => obj.id !== item.id);
+      await setInAsyncStore('@events', filteredEvents);
+      refetchEvents();
+      Alert.alert('Delete Event Success');
+    } catch (err) {
+      Alert.alert('Delete Event Failed');
+    }
   };
 
   return (
